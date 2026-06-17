@@ -247,7 +247,7 @@ export default function Shop() {
         {/* ── Page header ── */}
         <div ref={headerRef} className="mb-10">
           <h1 className="font-display text-4xl md:text-5xl text-[#2C1810] mb-2">
-            All Chocolates
+            Our Collection
           </h1>
           <p className="font-body text-sm text-[#C4A882]">
             {loading ? 'Loading…' : `${displayed.length} product${displayed.length !== 1 ? 's' : ''}`}

@@ -78,9 +78,19 @@ export default function ProductGridSection() {
     <section ref={sectionRef} id="products" className="py-24 bg-[#F5E6D3]">
       <div className="max-w-[1440px] mx-auto px-6">
 
-        <h2 ref={titleRef} className="font-display text-3xl md:text-4xl text-[#2C1810] mb-8">
-          All Chocolates
-        </h2>
+        {/* Heading row — title left, browse button right */}
+        <div className="flex items-end justify-between mb-8">
+          <h2 ref={titleRef} className="font-display text-3xl md:text-4xl text-[#2C1810]">
+            Our Collection
+          </h2>
+          <Link
+            to="/shop"
+            className="hidden sm:inline-flex items-center gap-2 font-body text-sm text-[#2C1810] hover:text-[#C8975A] transition-colors group"
+          >
+            Browse All Collection
+            <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
+          </Link>
+        </div>
 
         <div ref={filtersRef} className="flex flex-wrap gap-2 mb-10">
           {categories.map(cat => (
@@ -107,6 +117,18 @@ export default function ProductGridSection() {
             />
           ))}
         </div>
+
+        {/* Below-grid CTA — visible on all screen sizes */}
+        <div className="flex justify-center mt-12">
+          <Link
+            to="/shop"
+            className="inline-flex items-center gap-3 px-8 py-3.5 border border-[#2C1810] text-[#2C1810] font-body text-sm tracking-wide rounded hover:bg-[#2C1810] hover:text-white transition-all duration-300 group"
+          >
+            Browse All Collection
+            <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>
+          </Link>
+        </div>
+
       </div>
     </section>
   );
