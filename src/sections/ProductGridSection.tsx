@@ -22,6 +22,7 @@ export default function ProductGridSection() {
   const sectionRef      = useRef<HTMLElement>(null);
   const titleRef        = useRef<HTMLHeadingElement>(null);
   const filtersRef      = useRef<HTMLDivElement>(null);
+  const browseRef       = useRef<HTMLAnchorElement>(null);
 
   const filteredProducts = activeFilter === 'all'
     ? products
@@ -55,6 +56,27 @@ export default function ProductGridSection() {
         },
       });
 
+      // "Browse All Collection" slides in from right with a shimmer pulse
+      if (browseRef.current) {
+        gsap.from(browseRef.current, {
+          x: 50, opacity: 0, duration: 0.8, ease: 'power3.out',
+          scrollTrigger: {
+            id: 'pgrid-browse',
+            trigger: titleRef.current,
+            start: 'top 85%',
+          },
+        });
+
+        // Repeating subtle shimmer after entrance
+        gsap.to(browseRef.current, {
+          backgroundPosition: '200% center',
+          duration: 2.5,
+          ease: 'none',
+          repeat: -1,
+          delay: 1.2,
+        });
+      }
+
       // Cards stagger fade-up — re-target after filter change
       gsap.utils.toArray<HTMLElement>('.pgrid-card').forEach((card, i) => {
         gsap.from(card, {
@@ -85,7 +107,8 @@ export default function ProductGridSection() {
           </h2>
           <Link
             to="/shop"
-            className="hidden sm:inline-flex items-center gap-2 font-body text-sm text-[#2C1810] hover:text-[#C8975A] transition-colors group"
+            ref={browseRef}
+            className="hidden sm:inline-flex items-center gap-2 font-body text-sm text-[#2C1810] hover:text-[#C8975A] transition-colors group browse-shimmer"
           >
             Browse All Collection
             <span className="inline-block transition-transform duration-200 group-hover:translate-x-1">→</span>

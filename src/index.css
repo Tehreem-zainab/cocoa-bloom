@@ -50,6 +50,23 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
+    /* Hide default cursor on non-touch devices — custom cursor takes over */
+    cursor: none;
+  }
+
+  /* Restore cursor on touch — CustomCursor component won't mount on touch anyway */
+  @media (pointer: coarse) {
+    body { cursor: auto; }
+  }
+
+  a, button, [role="button"], input, textarea, select {
+    cursor: none;
+  }
+
+  @media (pointer: coarse) {
+    a, button, [role="button"], input, textarea, select {
+      cursor: auto;
+    }
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -72,5 +89,30 @@
 
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@layer components {
+  /* Browse All Collection — shimmer sweep animation */
+  .browse-shimmer {
+    background: linear-gradient(
+      90deg,
+      #2C1810 0%,
+      #2C1810 35%,
+      #C8975A 50%,
+      #D4AF37 55%,
+      #2C1810 65%,
+      #2C1810 100%
+    );
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-position: 0% center;
+  }
+
+  .browse-shimmer:hover {
+    background-position: 100% center;
+    transition: background-position 0.5s ease;
   }
 }
