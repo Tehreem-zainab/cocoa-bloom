@@ -3,6 +3,7 @@ import { LanguageProvider } from '@/context/LanguageContext';
 import { CartProvider } from '@/context/CartContext';
 import Layout from '@/components/Layout';
 import Home from '@/pages/Home';
+import Shop from '@/pages/Shop';
 import ProductDetail from '@/pages/ProductDetail';
 import Checkout from '@/pages/Checkout';
 
@@ -24,6 +25,7 @@ export default function App() {
           {/* Public storefront */}
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
+            <Route path="/shop" element={<Shop />} />
             <Route path="/product/:slug" element={<ProductDetail />} />
             <Route path="/checkout" element={<Checkout />} />
           </Route>

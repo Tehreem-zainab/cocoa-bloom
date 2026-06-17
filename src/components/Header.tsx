@@ -5,10 +5,10 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useCart } from '@/context/CartContext';
 
 const navLinks = [
-  { zh: 'All Chocolates', en: 'All Chocolates', path: '/#products' },
-  { zh: 'Seasonal Limited Edition', en: 'Seasonal Limited Edition', path: '/#seasonal' },
-  { zh: 'Production Process', en: 'Production Process', path: '/#bean-to-bar' },
-  { zh: 'Gift Box Guide', en: 'Gift Box Guide', path: '/#gift-guide' },
+  { label: 'All Chocolates',          path: '/shop',         isRoute: true  },
+  { label: 'Seasonal Limited Edition', path: '/#seasonal',   isRoute: false },
+  { label: 'Production Process',       path: '/#bean-to-bar', isRoute: false },
+  { label: 'Gift Box Guide',           path: '/#gift-guide',  isRoute: false },
 ];
 
 export default function Header() {
@@ -45,13 +45,17 @@ export default function Header() {
   const isHome = location.pathname === '/';
   const showSolid = !isHome || scrolled;
 
-  const handleNavClick = (path: string) => {
-    const sectionId = path.replace('/#', '');
-    if (isHome) {
-      const el = document.getElementById(sectionId);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+  const handleNavClick = (path: string, isRoute: boolean) => {
+    if (isRoute) {
+      navigate(path);
     } else {
-      navigate(`/#${sectionId}`);
+      const sectionId = path.replace('/#', '');
+      if (isHome) {
+        const el = document.getElementById(sectionId);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        navigate(`/#${sectionId}`);
+      }
     }
     setMobileOpen(false);
   };

@@ -80,8 +80,8 @@ export default function ProductDetail() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-[#F5E6D3] pt-20">
-      <div className="max-w-[1440px] mx-auto px-6 py-12">
+    <div className="min-h-screen bg-[#F5E6D3] pt-20 overflow-x-hidden">
+      <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 py-12">
         {/* Breadcrumb */}
         <nav className="mb-8">
           <Link to="/" className="font-body text-sm text-[#C4A882] hover:text-[#C8975A] transition-colors">Home</Link>
@@ -90,9 +90,9 @@ export default function ProductDetail() {
         </nav>
 
         {/* Main Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[55%_45%] gap-12 mb-16">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
           {/* Gallery */}
-          <div>
+          <div className="w-full min-w-0">
             <div
               ref={imageRef}
               onClick={handleImageClick}
@@ -130,8 +130,8 @@ export default function ProductDetail() {
           </div>
 
           {/* Product Info */}
-          <div>
-            <h1 className="font-display text-3xl md:text-4xl text-[#2C1810] mb-2">{product.name}</h1>
+          <div className="w-full min-w-0 max-w-full">
+            <h1 className="w-full block font-display text-3xl md:text-4xl text-[#2C1810] mb-2 break-words">{product.name}</h1>
 
             <div className="flex items-center gap-3 mb-4">
               <span className="font-body text-2xl text-[#C8975A] font-medium">Rs {product.price}</span>
@@ -147,7 +147,7 @@ export default function ProductDetail() {
               </div>
             )}
 
-            <p className="font-body text-sm text-[#5C3A2A] leading-relaxed mb-6">{product.description}</p>
+            <p className="w-full block font-body text-sm text-[#5C3A2A] leading-relaxed mb-6 break-words">{product.description}</p>
 
             <div className="flex flex-wrap gap-2 mb-6">
               {product.tastingNotes.slice(0, 3).map((note, i) => (
@@ -183,7 +183,7 @@ export default function ProductDetail() {
             </button>
 
             {/* Gift Wrap */}
-            <div className="border border-[#C4A882]/20 rounded p-4">
+            <div className="w-full border border-[#C4A882]/20 rounded p-4">
               <button onClick={() => setGiftWrap(!giftWrap)} className="flex items-center gap-2 w-full">
                 <Gift size={18} className="text-[#C8975A]" />
                 <span className="font-body text-sm text-[#2C1810]">Add Gift Wrap (+Rs 35)</span>

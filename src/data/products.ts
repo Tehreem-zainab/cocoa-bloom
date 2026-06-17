@@ -198,7 +198,7 @@ export const products: Product[] = [
     maxTransitHours: 48,
     giftWrappable: true,
     isTruffle: false,
-    seasonal: false,
+    seasonal: true,
     inStock: true,
     stockLevel: 'high',
     reviews: [
