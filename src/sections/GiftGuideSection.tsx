@@ -8,14 +8,14 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const collectionImages: Record<string, string> = {
-  birthday: '/products/gift-box-12.jpg',
-  thankyou: '/products/champagne-truffle.jpg',
+  birthday:     '/products/gift-box-12.jpg',
+  thankyou:     '/products/champagne-truffle.jpg',
   lunarnewyear: '/products/gift-box-24.jpg',
 };
 
 const collectionColors: Record<string, string> = {
-  birthday: 'from-[#C8975A]/20 to-[#D4AF37]/10',
-  thankyou: 'from-[#5C3A2A]/20 to-[#C8975A]/10',
+  birthday:     'from-[#C8975A]/20 to-[#D4AF37]/10',
+  thankyou:     'from-[#5C3A2A]/20 to-[#C8975A]/10',
   lunarnewyear: 'from-[#B8324A]/20 to-[#D4AF37]/10',
 };
 
@@ -24,21 +24,42 @@ export default function GiftGuideSection() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+
+      // ── Title slides up ───────────────────────────────────
       gsap.from('.gift-title', {
-        y: 60, opacity: 0, duration: 0.8, ease: 'power3.out',
-        scrollTrigger: { trigger: sectionRef.current, start: 'top 80%' },
+        y: 60, opacity: 0, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '.gift-title',
+          start: 'top 85%',
+        },
       });
-      gsap.from('.gift-card', {
-        scale: 0.95, opacity: 0, duration: 0.6, ease: 'power2.out', stagger: 0.15,
-        scrollTrigger: { trigger: '.gift-grid', start: 'top 80%' },
+
+      // ── Cards scale up + stagger ──────────────────────────
+      gsap.utils.toArray<HTMLElement>('.gift-card').forEach((card, i) => {
+        gsap.from(card, {
+          y: 60,
+          scale: 0.92,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power2.out',
+          delay: i * 0.15,
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 88%',
+          },
+        });
       });
+
+      ScrollTrigger.refresh();
     }, sectionRef);
+
     return () => ctx.revert();
   }, []);
 
   return (
     <section ref={sectionRef} id="gift-guide" className="py-24 bg-[#F9F9F9]">
       <div className="max-w-[1440px] mx-auto px-6">
+
         <h2 className="gift-title font-display text-3xl md:text-4xl text-[#2C1810] mb-12">
           Gift Box Guide
         </h2>
@@ -83,7 +104,12 @@ export default function GiftGuideSection() {
 function GiftRibbonLarge() {
   return (
     <svg width="48" height="60" viewBox="0 0 28 36" fill="none">
-      <path d="M14 0L16.5 12H28L18.5 19.5L22 32L14 24.5L6 32L9.5 19.5L0 12H11.5L14 0Z" fill="#D4AF37" className="animate-pulse" style={{ animationDuration: '3s' }} />
+      <path
+        d="M14 0L16.5 12H28L18.5 19.5L22 32L14 24.5L6 32L9.5 19.5L0 12H11.5L14 0Z"
+        fill="#D4AF37"
+        className="animate-pulse"
+        style={{ animationDuration: '3s' }}
+      />
     </svg>
   );
 }

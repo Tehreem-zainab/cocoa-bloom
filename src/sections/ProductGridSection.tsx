@@ -9,50 +9,88 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 const categories = [
-  { key: 'all', label: 'All' },
-  { key: 'bar', label: 'Bars' },
-  { key: 'truffle', label: 'Truffles' },
-  { key: 'bonbon', label: 'Bonbons' },
+  { key: 'all',      label: 'All' },
+  { key: 'bar',      label: 'Bars' },
+  { key: 'truffle',  label: 'Truffles' },
+  { key: 'bonbon',   label: 'Bonbons' },
   { key: 'gift-set', label: 'Gift Sets' },
 ];
 
 export default function ProductGridSection() {
-  const { addItem } = useCart();
+  const { addItem }     = useCart();
   const [activeFilter, setActiveFilter] = useState('all');
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef      = useRef<HTMLElement>(null);
+  const titleRef        = useRef<HTMLHeadingElement>(null);
+  const filtersRef      = useRef<HTMLDivElement>(null);
 
   const filteredProducts = activeFilter === 'all'
     ? products
     : products.filter(p => p.category === activeFilter);
 
+  // ── Scroll-triggered animations ──────────────────────────────
   useEffect(() => {
+    // Kill all previous ScrollTrigger instances scoped to this section
+    ScrollTrigger.getAll().forEach(st => {
+      if (st.vars.id?.toString().startsWith('pgrid-')) st.kill();
+    });
+
     const ctx = gsap.context(() => {
-      gsap.from('.grid-title', {
+      // Title slides up
+      gsap.from(titleRef.current, {
         y: 60, opacity: 0, duration: 0.8, ease: 'power3.out',
-        scrollTrigger: { trigger: sectionRef.current, start: 'top 80%' },
+        scrollTrigger: {
+          id: 'pgrid-title',
+          trigger: titleRef.current,
+          start: 'top 85%',
+        },
       });
-      gsap.from('.product-grid-card', {
-        y: 40, opacity: 0, duration: 0.6, ease: 'power2.out', stagger: 0.08,
-        scrollTrigger: { trigger: '.product-grid-container', start: 'top 80%' },
+
+      // Filter pills slide in from left
+      gsap.from(filtersRef.current, {
+        x: -40, opacity: 0, duration: 0.6, ease: 'power2.out',
+        scrollTrigger: {
+          id: 'pgrid-filters',
+          trigger: filtersRef.current,
+          start: 'top 88%',
+        },
       });
+
+      // Cards stagger fade-up — re-target after filter change
+      gsap.utils.toArray<HTMLElement>('.pgrid-card').forEach((card, i) => {
+        gsap.from(card, {
+          y: 50, opacity: 0, duration: 0.55, ease: 'power2.out',
+          delay: i * 0.07,
+          scrollTrigger: {
+            id: `pgrid-card-${i}`,
+            trigger: card,
+            start: 'top 90%',
+          },
+        });
+      });
+
+      ScrollTrigger.refresh();
     }, sectionRef);
+
     return () => ctx.revert();
-  }, [activeFilter]);
+  }, [activeFilter]); // re-runs every time filter changes
 
   return (
     <section ref={sectionRef} id="products" className="py-24 bg-[#F5E6D3]">
       <div className="max-w-[1440px] mx-auto px-6">
-        <h2 className="grid-title font-display text-3xl md:text-4xl text-[#2C1810] mb-8">
+
+        <h2 ref={titleRef} className="font-display text-3xl md:text-4xl text-[#2C1810] mb-8">
           All Chocolates
         </h2>
 
-        <div className="flex flex-wrap gap-2 mb-10">
+        <div ref={filtersRef} className="flex flex-wrap gap-2 mb-10">
           {categories.map(cat => (
             <button
               key={cat.key}
               onClick={() => setActiveFilter(cat.key)}
               className={`px-5 py-2 rounded font-body text-sm transition-all ${
-                activeFilter === cat.key ? 'bg-[#2C1810] text-white' : 'bg-white/60 text-[#2C1810] hover:bg-white'
+                activeFilter === cat.key
+                  ? 'bg-[#2C1810] text-white'
+                  : 'bg-white/60 text-[#2C1810] hover:bg-white'
               }`}
             >
               {cat.label}
@@ -60,9 +98,13 @@ export default function ProductGridSection() {
           ))}
         </div>
 
-        <div className="product-grid-container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredProducts.map(product => (
-            <ProductCard key={product.id} product={product} onAddToCart={() => addItem(product.id)} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={() => addItem(product.id)}
+            />
           ))}
         </div>
       </div>
@@ -70,6 +112,7 @@ export default function ProductGridSection() {
   );
 }
 
+// ── Product Card ──────────────────────────────────────────────
 function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: () => void }) {
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -83,13 +126,12 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
   };
 
   const handleMouseLeave = () => {
-    if (cardRef.current) {
+    if (cardRef.current)
       cardRef.current.style.transform = 'perspective(1000px) rotateY(0) rotateX(0) scale(1)';
-    }
   };
 
   return (
-    <div className="product-grid-card group">
+    <div className="pgrid-card group">
       <div
         ref={cardRef}
         onMouseMove={handleMouseMove}
@@ -117,7 +159,7 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
               <span>❄</span> Cold
             </div>
           )}
-          <div className="absolute bottom-0 left-0 right-0 h-[35%] bg-gradient-to-t from-[#2C1810] via-[#5C3A2A]/80 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-400 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 h-[35%] bg-gradient-to-t from-[#2C1810] via-[#5C3A2A]/80 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-300 pointer-events-none" />
         </Link>
       </div>
 
@@ -149,7 +191,12 @@ function ProductCard({ product, onAddToCart }: { product: Product; onAddToCart: 
 function GoldRibbon() {
   return (
     <svg width="28" height="36" viewBox="0 0 28 36" fill="none" className="drop-shadow-sm">
-      <path d="M14 0L16.5 12H28L18.5 19.5L22 32L14 24.5L6 32L9.5 19.5L0 12H11.5L14 0Z" fill="#D4AF37" className="animate-pulse" style={{ animationDuration: '3s' }} />
+      <path
+        d="M14 0L16.5 12H28L18.5 19.5L22 32L14 24.5L6 32L9.5 19.5L0 12H11.5L14 0Z"
+        fill="#D4AF37"
+        className="animate-pulse"
+        style={{ animationDuration: '3s' }}
+      />
     </svg>
   );
 }

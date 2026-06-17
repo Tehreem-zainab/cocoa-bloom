@@ -3,6 +3,10 @@ import { Link } from 'react-router';
 import { Snowflake, SlidersHorizontal, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useCart } from '@/context/CartContext';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface ShopProduct {
@@ -74,7 +78,7 @@ function ProductCard({ product, onAddToCart }: { product: ShopProduct; onAddToCa
   };
 
   return (
-    <div className="group flex flex-col">
+    <div className="shop-card group flex flex-col">
       {/* Image box */}
       <div
         ref={cardRef}
@@ -166,12 +170,15 @@ function ProductCard({ product, onAddToCart }: { product: ShopProduct; onAddToCa
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Shop() {
   const { addItem } = useCart();
-  const [allProducts, setAllProducts]     = useState<ShopProduct[]>([]);
-  const [loading, setLoading]             = useState(true);
-  const [error, setError]                 = useState<string | null>(null);
+  const [allProducts, setAllProducts]       = useState<ShopProduct[]>([]);
+  const [loading, setLoading]               = useState(true);
+  const [error, setError]                   = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState('all');
-  const [sortKey, setSortKey]             = useState('newest');
-  const [showFilters, setShowFilters]     = useState(false);
+  const [sortKey, setSortKey]               = useState('newest');
+  const [showFilters, setShowFilters]       = useState(false);
+  const pageRef   = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const gridRef   = useRef<HTMLDivElement>(null);
 
   // ── Fetch ALL products from Supabase ────────────────────────────────────────
   useEffect(() => {
@@ -195,7 +202,7 @@ export default function Shop() {
     fetch();
   }, []);
 
-  // ── Client-side filter + sort ────────────────────────────────────────────────
+  // ── Client-side filter + sort (must be before any useEffect that uses it) ──
   const displayed = [...allProducts]
     .filter(p => activeCategory === 'all' || p.category === activeCategory)
     .sort((a, b) => {
@@ -205,12 +212,40 @@ export default function Shop() {
       return 0; // 'newest' — already ordered by the DB query
     });
 
+  // ── GSAP scroll animations — run after products load ───────────────────────
+  useEffect(() => {
+    if (loading || displayed.length === 0) return;
+
+    const ctx = gsap.context(() => {
+      // Page header slides down
+      gsap.from(headerRef.current, {
+        y: -30, opacity: 0, duration: 0.7, ease: 'power2.out',
+      });
+
+      // Grid cards stagger fade-up on scroll
+      gsap.utils.toArray<HTMLElement>('.shop-card').forEach((card, i) => {
+        gsap.from(card, {
+          y: 50, opacity: 0, duration: 0.55, ease: 'power2.out',
+          delay: (i % 4) * 0.08,
+          scrollTrigger: {
+            trigger: card,
+            start: 'top 90%',
+          },
+        });
+      });
+
+      ScrollTrigger.refresh();
+    }, pageRef);
+
+    return () => ctx.revert();
+  }, [loading, displayed.length, activeCategory, sortKey]);
+
   return (
-    <div className="min-h-screen bg-[#F5E6D3] pt-20 overflow-x-hidden">
+    <div ref={pageRef} className="min-h-screen bg-[#F5E6D3] pt-20 overflow-x-hidden">
       <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 py-12">
 
         {/* ── Page header ── */}
-        <div className="mb-10">
+        <div ref={headerRef} className="mb-10">
           <h1 className="font-display text-4xl md:text-5xl text-[#2C1810] mb-2">
             All Chocolates
           </h1>
