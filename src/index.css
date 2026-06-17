@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  :root {
+    --dark-chocolate: #2C1810;
+    --milk-chocolate: #5C3A2A;
+    --warm-caramel: #C8975A;
+    --light-caramel: #E8C87A;
+    --golden-foil: #D4AF37;
+    --cream: #F5E6D3;
+    --dark-cream: #C4A882;
+    --raspberry: #B8324A;
+    --vanilla: #F9F9F9;
+
+    --background: 30 30% 96%;
+    --foreground: 20 40% 12%;
+    --card: 30 30% 96%;
+    --card-foreground: 20 40% 12%;
+    --popover: 30 30% 96%;
+    --popover-foreground: 20 40% 12%;
+    --primary: 36 40% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 30 20% 90%;
+    --secondary-foreground: 20 40% 12%;
+    --muted: 30 15% 88%;
+    --muted-foreground: 30 15% 55%;
+    --accent: 36 40% 56%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 350 60% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 15% 82%;
+    --input: 30 15% 88%;
+    --ring: 36 40% 56%;
+    --radius: 0.25rem;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--cream);
+    color: var(--dark-chocolate);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: 'Playfair Display', serif;
+  }
+
+  .font-body {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .font-en {
+    font-family: 'Playfair Display', serif;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
