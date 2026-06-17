@@ -178,7 +178,6 @@ export default function Shop() {
   const [showFilters, setShowFilters]       = useState(false);
   const pageRef   = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
-  const gridRef   = useRef<HTMLDivElement>(null);
 
   // ── Fetch ALL products from Supabase ────────────────────────────────────────
   useEffect(() => {
@@ -195,7 +194,7 @@ export default function Shop() {
       if (error) {
         setError(error.message);
       } else {
-        setAllProducts((data as ShopProduct[]) ?? []);
+        setAllProducts((data as unknown as ShopProduct[]) ?? []);
       }
       setLoading(false);
     };
@@ -316,7 +315,7 @@ export default function Shop() {
                         .from('products')
                         .select('id, slug, name, short_description, price, compare_at_price, images, category, stock_level, in_stock, cold_chain_required, gift_wrappable, seasonal')
                         .order('created_at', { ascending: false })
-                        .then(({ data }) => { if (data) setAllProducts(data as ShopProduct[]); });
+                        .then(({ data }) => { if (data) setAllProducts(data as unknown as ShopProduct[]); });
                     }
                   }}
                 />
@@ -335,7 +334,7 @@ export default function Shop() {
                         .from('products')
                         .select('id, slug, name, short_description, price, compare_at_price, images, category, stock_level, in_stock, cold_chain_required, gift_wrappable, seasonal')
                         .order('created_at', { ascending: false })
-                        .then(({ data }) => { if (data) setAllProducts(data as ShopProduct[]); });
+                        .then(({ data }) => { if (data) setAllProducts(data as unknown as ShopProduct[]); });
                     }
                   }}
                 />
@@ -354,7 +353,7 @@ export default function Shop() {
                         .from('products')
                         .select('id, slug, name, short_description, price, compare_at_price, images, category, stock_level, in_stock, cold_chain_required, gift_wrappable, seasonal')
                         .order('created_at', { ascending: false })
-                        .then(({ data }) => { if (data) setAllProducts(data as ShopProduct[]); });
+                        .then(({ data }) => { if (data) setAllProducts(data as unknown as ShopProduct[]); });
                     }
                   }}
                 />

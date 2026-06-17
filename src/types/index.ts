@@ -65,3 +65,5 @@ export type CartAction =
   | { type: 'CLEAR_CART' };
 
 export type ShippingMethod = 'standard' | 'expedited' | 'cold-chain';
+
+export type Locale = 'zh' | 'en';

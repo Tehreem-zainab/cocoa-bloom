@@ -459,7 +459,7 @@ export default function Checkout() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-body text-sm text-[#2C1810] truncate">
-                          {product.name.en}
+                          {product.name}
                         </p>
                         <p className="font-body text-xs text-[#C4A882]">
                           x{item.quantity}
