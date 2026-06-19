@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Lock } from 'lucide-react';
+import CustomCursor from '@/components/CustomCursor';
 
-// Simple hardcoded credentials — change these before going live
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'cocoabloom2026';
+// Credentials loaded from environment variables
+const ADMIN_USER = import.meta.env.VITE_ADMIN_USER as string;
+const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS as string;
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -23,7 +24,8 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-[#2C1810] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#2C1810] flex items-center justify-center p-4 cursor-none">
+      <CustomCursor />
       <div className="w-full max-w-sm bg-[#F5E6D3] rounded-lg p-8">
         <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 bg-[#C8975A]/10 rounded-full flex items-center justify-center mb-4">

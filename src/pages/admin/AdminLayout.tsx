@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router';
 import { Package, ShoppingCart, Layers, Home, LogOut, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import CustomCursor from '@/components/CustomCursor';
 
 const navItems = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: <Home size={18} /> },
@@ -20,7 +21,8 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50 flex cursor-none">
+      <CustomCursor />
       {/* Sidebar */}
       <aside className={`${sidebarOpen ? 'w-60' : 'w-16'} bg-[#2C1810] flex flex-col transition-all duration-200 flex-shrink-0`}>
         <div className="flex items-center justify-between p-4 border-b border-white/10">

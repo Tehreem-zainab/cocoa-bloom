@@ -6,7 +6,7 @@ import CustomCursor from './CustomCursor';
 
 export default function Layout() {
   return (
-    <div className="min-h-screen overflow-x-hidden w-full">
+    <div className="min-h-screen overflow-x-hidden w-full cursor-none">
       <CustomCursor />
       <Header />
       <main className="overflow-x-hidden">
