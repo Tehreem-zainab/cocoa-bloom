@@ -87,11 +87,16 @@ export default function Header() {
     setMobileOpen(false);
   };
 
-  // All nav items in order (Home optional, then shop, then sections)
-  const allNavItems = [
-    ...(!isHome ? [{ type: 'home' }] : []),
-    { type: 'shop' },
-    ...sectionLinks.map((l, i) => ({ type: 'section', link: l, i })),
+  // All nav items — strongly typed discriminated union
+  type NavItem =
+    | { type: 'home' }
+    | { type: 'shop' }
+    | { type: 'section'; link: { label: string; path: string } };
+
+  const allNavItems: NavItem[] = [
+    ...(!isHome ? [{ type: 'home' as const }] : []),
+    { type: 'shop' as const },
+    ...sectionLinks.map(l => ({ type: 'section' as const, link: l })),
   ];
 
   return (
@@ -155,12 +160,12 @@ export default function Header() {
               </Link>
             );
 
-            if (item.type === 'section' && item.link) return (
+            if (item.type === 'section') return (
               <button
                 key={item.link.path}
                 ref={el => { itemRefs.current[idx] = el; }}
                 onMouseEnter={() => setHoveredIdx(idx)}
-                onClick={() => handleSectionClick(item.link!.path)}
+                onClick={() => handleSectionClick(item.link.path)}
                 className={`${baseClass} ${s.nav}`}
               >
                 {item.link.label}
