@@ -1,6 +1,7 @@
-import { createContext, useContext, useReducer, useMemo, useCallback, type ReactNode } from 'react';
-import type { CartState, CartAction, CartItem } from '@/types';
-import { products } from '@/data/products';
+import { createContext, useContext, useReducer, useMemo, useCallback, useState, useEffect, type ReactNode } from 'react';
+import type { CartState, CartAction, CartItem, Product } from '@/types';
+import { products as staticProducts } from '@/data/products';
+import { supabase } from '@/lib/supabase';
 
 const FREE_SHIPPING_THRESHOLD = 599;
 const FREE_COLD_CHAIN_THRESHOLD = 1199;
@@ -100,7 +101,7 @@ interface CartContextType {
   openDrawer: () => void;
   closeDrawer: () => void;
   clearCart: () => void;
-  getCartProduct: (productId: string) => typeof products[0] | undefined;
+  getCartProduct: (productId: string) => Product | undefined;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -108,12 +109,67 @@ const CartContext = createContext<CartContextType | null>(null);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
+  // ── Dynamic product cache (merges static + Supabase products) ──
+  const [productCache, setProductCache] = useState<Record<string, Product>>(() => {
+    const cache: Record<string, Product> = {};
+    staticProducts.forEach(p => { cache[p.id] = p; });
+    return cache;
+  });
+
+  // Fetch missing products from Supabase whenever cart items change
+  useEffect(() => {
+    const missingIds = state.items
+      .map(item => item.productId)
+      .filter(id => !productCache[id]);
+
+    if (missingIds.length === 0) return;
+
+    supabase
+      .from('products')
+      .select('id, slug, name, short_description, description, price, compare_at_price, images, cold_chain_required, max_transit_hours, gift_wrappable, is_truffle, seasonal, in_stock, stock_level, category')
+      .in('id', missingIds)
+      .then(({ data, error }) => {
+        if (error || !data) return;
+        setProductCache(prev => {
+          const next = { ...prev };
+          data.forEach((row: any) => {
+            next[row.id] = {
+              id: row.id,
+              slug: row.slug,
+              name: row.name,
+              description: row.description ?? '',
+              shortDescription: row.short_description ?? '',
+              price: row.price,
+              compareAtPrice: row.compare_at_price ?? undefined,
+              images: row.images ?? [],
+              category: row.category ?? 'bar',
+              flavorMap: { intensity: 5, sweetness: 5, bitterness: 5, fruitiness: 5, nuttiness: 5 },
+              tastingNotes: [],
+              ingredients: '',
+              allergens: [],
+              pairings: [],
+              coldChainRequired: row.cold_chain_required ?? false,
+              maxTransitHours: row.max_transit_hours ?? 120,
+              giftWrappable: row.gift_wrappable ?? true,
+              isTruffle: row.is_truffle ?? false,
+              seasonal: row.seasonal ?? false,
+              inStock: row.in_stock ?? true,
+              stockLevel: row.stock_level ?? 'high',
+              reviews: [],
+            } as Product;
+          });
+          return next;
+        });
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.items]);
+
   const subtotal = useMemo(() => {
     return state.items.reduce((sum, item) => {
-      const product = products.find(p => p.id === item.productId);
+      const product = productCache[item.productId];
       return sum + (product ? product.price * item.quantity : 0);
     }, 0);
-  }, [state.items]);
+  }, [state.items, productCache]);
 
   const totalQuantity = useMemo(() => {
     return state.items.reduce((sum, item) => sum + item.quantity, 0);
@@ -127,21 +183,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const isColdChainRequired = useMemo(() => {
     return state.items.some(item => {
-      const product = products.find(p => p.id === item.productId);
+      const product = productCache[item.productId];
       return product?.coldChainRequired;
     });
-  }, [state.items]);
+  }, [state.items, productCache]);
 
   const maxTransitHours = useMemo(() => {
     let max = 120;
     state.items.forEach(item => {
-      const product = products.find(p => p.id === item.productId);
+      const product = productCache[item.productId];
       if (product?.coldChainRequired && product.maxTransitHours < max) {
         max = product.maxTransitHours;
       }
     });
     return max;
-  }, [state.items]);
+  }, [state.items, productCache]);
 
   const icePackCount = useMemo(() => {
     if (!isColdChainRequired) return 0;
@@ -198,9 +254,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const closeDrawer = useCallback(() => dispatch({ type: 'CLOSE_DRAWER' }), []);
   const clearCart = useCallback(() => dispatch({ type: 'CLEAR_CART' }), []);
 
-  const getCartProduct = useCallback((productId: string) => {
-    return products.find(p => p.id === productId);
-  }, []);
+  const getCartProduct = useCallback((productId: string): Product | undefined => {
+    return productCache[productId];
+  }, [productCache]);
 
   return (
     <CartContext.Provider value={{

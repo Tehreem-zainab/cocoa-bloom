@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
-import { Instagram, Facebook, Mail } from 'lucide-react';
+import { Instagram, Facebook, Mail, CheckCircle, Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 const shopLinks = [
   { label: 'All Chocolates', path: '/#products' },
@@ -11,6 +13,40 @@ const shopLinks = [
 const supportLinks = ['Shipping Info', 'FAQ', 'Contact', 'Privacy Policy'];
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleSubscribe = async () => {
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setErrorMsg('Please enter a valid email address.');
+      setStatus('error');
+      return;
+    }
+    setStatus('loading');
+    setErrorMsg('');
+    const { error } = await supabase
+      .from('subscribers')
+      .insert([{ email: trimmed }]);
+    if (error) {
+      // code 23505 = unique violation (already subscribed)
+      if (error.code === '23505') {
+        setStatus('success'); // treat as success — they're already in
+      } else {
+        setErrorMsg('Something went wrong. Please try again.');
+        setStatus('error');
+      }
+    } else {
+      setStatus('success');
+      setEmail('');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleSubscribe();
+  };
+
   return (
     <footer className="bg-[#2C1810] text-[#F5E6D3]">
       <div className="max-w-[1440px] mx-auto px-6 py-16">
@@ -57,21 +93,43 @@ export default function Footer() {
           </div>
 
           {/* Newsletter */}
-          <div>
+          <div className="min-w-0">
             <h4 className="font-display text-lg mb-4">Newsletter</h4>
             <p className="font-body text-sm text-[#C4A882] mb-4">
               Get the latest products and exclusive offers
             </p>
-            <div className="flex">
-              <input
-                type="email"
-                placeholder="Your email"
-                className="flex-1 px-4 py-2.5 bg-[#2C1810] border border-[#C4A882]/30 rounded-l font-body text-sm text-[#F5E6D3] placeholder:text-[#C4A882]/50 focus:outline-none focus:border-[#C8975A]"
-              />
-              <button className="px-4 py-2.5 bg-[#C8975A] text-white rounded-r font-body text-sm hover:bg-[#C8975A]/90 transition-colors">
-                Subscribe
-              </button>
-            </div>
+
+            {status === 'success' ? (
+              <div className="flex items-center gap-2 text-[#7A8B6F]">
+                <CheckCircle size={18} />
+                <span className="font-body text-sm">You're subscribed!</span>
+              </div>
+            ) : (
+              <>
+                <div className="flex w-full">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setStatus('idle'); setErrorMsg(''); }}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Your email"
+                    className="min-w-0 flex-1 px-3 py-2.5 bg-[#2C1810] border border-[#C4A882]/30 rounded-l font-body text-sm text-[#F5E6D3] placeholder:text-[#C4A882]/50 focus:outline-none focus:border-[#C8975A]"
+                  />
+                  <button
+                    onClick={handleSubscribe}
+                    disabled={status === 'loading'}
+                    className="flex-shrink-0 px-4 py-2.5 bg-[#C8975A] text-white rounded-r font-body text-sm hover:bg-[#C8975A]/90 transition-colors disabled:opacity-70 flex items-center gap-1"
+                  >
+                    {status === 'loading'
+                      ? <Loader2 size={14} className="animate-spin" />
+                      : 'Subscribe'}
+                  </button>
+                </div>
+                {status === 'error' && (
+                  <p className="font-body text-xs text-[#B8324A] mt-2">{errorMsg}</p>
+                )}
+              </>
+            )}
           </div>
         </div>
 

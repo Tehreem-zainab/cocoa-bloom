@@ -73,7 +73,7 @@ export default function Checkout() {
 
   const isStepValid = () => {
     if (step === 1) return email.includes('@') && address.name && address.line1 && address.city;
-    if (step === 2) return shippingMethod && deliveryDate;
+    if (step === 2) return !!shippingMethod;
     if (step === 3) return paymentMethod && (paymentMethod !== 'card' || cardNumber.length >= 16);
     return true;
   };
@@ -85,15 +85,37 @@ export default function Checkout() {
     return SHIPPING_ZONES.filter(z => !z.cold);
   };
 
+  // Auto-select shipping method when there's only one option (e.g. cold-chain)
+  useEffect(() => {
+    if (step === 2) {
+      const options = getShippingOptions();
+      if (options.length === 1 && !shippingMethod) {
+        setShippingMethod(options[0].name);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, isColdChainRequired]);
+
+  // Auto-select first delivery date when dates are available
+  useEffect(() => {
+    if (step === 2 && !deliveryDate) {
+      const dates = getDeliveryDates();
+      if (dates.length > 0) setDeliveryDate(dates[0].value);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
   const getDeliveryDates = () => {
     const dates = [];
     const today = new Date();
-    for (let i = 2; i < 14; i++) {
+    // cold-chain: next 2-5 working days; standard: next 2-14 working days
+    const maxDaysAhead = isColdChainRequired ? 7 : 21;
+    for (let i = 2; i <= maxDaysAhead; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() + i);
       const day = d.getDay();
-      if (day === 0 || day === 6) continue;
-      if (isColdChainRequired && i > 3) continue;
+      if (day === 0 || day === 6) continue; // skip weekends
+      if (isColdChainRequired && dates.length >= 3) break; // only 3 slots for cold-chain
       dates.push({
         value: d.toISOString().split('T')[0],
         label: d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', weekday: 'short' }),

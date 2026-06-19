@@ -70,8 +70,8 @@ export default function CustomCursor() {
     document.documentElement.addEventListener('mouseenter', onMouseEnter);
 
     // ── LERP ring animation loop ─────────────────────────────
-    // Lerp factor: 0.12 = smooth, 0.2 = snappier
-    const LERP = 0.12;
+    // Lerp factor: 0.12 = smooth, 0.35 = fast & snappy
+    const LERP = 0.35;
 
     const animate = () => {
       ringPos.current.x += (mousePos.current.x - ringPos.current.x) * LERP;
@@ -114,11 +114,13 @@ export default function CustomCursor() {
         }}
       >
         <div
-          className="rounded-full bg-[#2C1810] transition-all duration-200"
+          className="rounded-full transition-all duration-200"
           style={{
-            width:   hovering ? '6px'  : '8px',
-            height:  hovering ? '6px'  : '8px',
-            opacity: hovering ? 0.5    : 1,
+            width:      hovering ? '6px'  : '8px',
+            height:     hovering ? '6px'  : '8px',
+            opacity:    hovering ? 0.7    : 1,
+            background: '#C8975A',
+            boxShadow:  '0 0 6px rgba(200,151,90,0.8)',
           }}
         />
       </div>
@@ -135,11 +137,13 @@ export default function CustomCursor() {
         }}
       >
         <div
-          className="rounded-full border border-[#2C1810]/40 transition-all duration-300 ease-out"
+          className="rounded-full transition-all duration-150 ease-out"
           style={{
             width:      hovering ? '48px' : '32px',
             height:     hovering ? '48px' : '32px',
-            background: hovering ? 'rgba(200,151,90,0.08)' : 'transparent',
+            border:     '1.5px solid rgba(200,151,90,0.7)',
+            background: hovering ? 'rgba(200,151,90,0.10)' : 'transparent',
+            boxShadow:  '0 0 8px rgba(200,151,90,0.25)',
           }}
         />
       </div>
